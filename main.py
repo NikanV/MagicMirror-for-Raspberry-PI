@@ -2,11 +2,14 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from datetime import datetime
 import pyttsx3
 from bs4 import BeautifulSoup
+from gnews import GNews
 import requests
 import cv2
 import pytz
 import sys
 import pics
+import jdatetime
+
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'}
@@ -47,24 +50,28 @@ class Ui_MagicMirror(object):
                                  "font: 24pt \"Forte\";")
         self.news1.setAlignment(QtCore.Qt.AlignCenter)
         self.news1.setObjectName("news1")
+        self.news1.setWordWrap(True)
         self.verticalLayout.addWidget(self.news1)
         self.news2 = QtWidgets.QLabel(self.verticalLayoutWidget)
         self.news2.setStyleSheet("color: rgb(3, 37, 67);\n"
                                  "font: 24pt \"Forte\";")
         self.news2.setAlignment(QtCore.Qt.AlignCenter)
         self.news2.setObjectName("news2")
+        self.news2.setWordWrap(True)
         self.verticalLayout.addWidget(self.news2)
         self.news3 = QtWidgets.QLabel(self.verticalLayoutWidget)
         self.news3.setStyleSheet("color: rgb(3, 37, 67);\n"
                                  "font: 24pt \"Forte\";")
         self.news3.setAlignment(QtCore.Qt.AlignCenter)
         self.news3.setObjectName("news3")
+        self.news3.setWordWrap(True)
         self.verticalLayout.addWidget(self.news3)
         self.news4 = QtWidgets.QLabel(self.verticalLayoutWidget)
         self.news4.setStyleSheet("color: rgb(3, 37, 67);\n"
                                  "font: 24pt \"Forte\";")
         self.news4.setAlignment(QtCore.Qt.AlignCenter)
         self.news4.setObjectName("news4")
+        self.news4.setWordWrap(True)
         self.verticalLayout.addWidget(self.news4)
         self.verticalLayoutWidget_2 = QtWidgets.QWidget(self.centralwidget)
         self.verticalLayoutWidget_2.setGeometry(
@@ -84,19 +91,19 @@ class Ui_MagicMirror(object):
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.year = QtWidgets.QLabel(self.verticalLayoutWidget_2)
         self.year.setStyleSheet("color: rgb(162, 255, 237);\n"
-                                "font: 24pt \"Forte\";")
+                                "font: 30pt \"Forte\";")
         self.year.setAlignment(QtCore.Qt.AlignCenter)
         self.year.setObjectName("year")
         self.horizontalLayout.addWidget(self.year)
         self.month = QtWidgets.QLabel(self.verticalLayoutWidget_2)
         self.month.setStyleSheet("color: rgb(162, 255, 237);\n"
-                                 "font: 24pt \"Forte\";")
+                                 "font: 30pt \"Forte\";")
         self.month.setAlignment(QtCore.Qt.AlignCenter)
         self.month.setObjectName("month")
         self.horizontalLayout.addWidget(self.month)
         self.day = QtWidgets.QLabel(self.verticalLayoutWidget_2)
         self.day.setStyleSheet("color: rgb(162, 255, 237);\n"
-                               "font: 24pt \"Forte\";")
+                               "font: 30pt \"Forte\";")
         self.day.setAlignment(QtCore.Qt.AlignCenter)
         self.day.setObjectName("day")
         self.horizontalLayout.addWidget(self.day)
@@ -112,6 +119,7 @@ class Ui_MagicMirror(object):
                                    "font: 30pt \"Forte\";")
         self.weather.setAlignment(QtCore.Qt.AlignCenter)
         self.weather.setObjectName("weather")
+        self.weather.setWordWrap(True)
         self.verticalLayout_2.addWidget(self.weather)
         self.background.raise_()
         self.frame.raise_()
@@ -129,18 +137,23 @@ class Ui_MagicMirror(object):
         _translate = QtCore.QCoreApplication.translate
         MagicMirror.setWindowTitle(_translate("MagicMirror", "MainWindow"))
         self.time_3.setText(_translate("MagicMirror", "news"))
-        self.news1.setText(_translate(
-            "MagicMirror", "news 1 is gonna be here and it is int"))
-        self.news2.setText(_translate(
-            "MagicMirror", "news 1 is gonna be here and it is int"))
-        self.news3.setText(_translate(
-            "MagicMirror", "news 1 is gonna be here and it is int"))
-        self.news4.setText(_translate(
-            "MagicMirror", "news 1 is gonna be here and it is int"))
-        self.updateTimezone()
+        self.initNews()
         self.initDate()
         self.initWeather()
         self.updateTemperature()
+        self.updateTimezone()
+
+    def initNews(self):
+        _translate = QtCore.QCoreApplication.translate
+        iran_news = GNews().get_news_by_topic("Technology")
+        self.news1.setText(_translate(
+            "MagicMirror", iran_news[0].get("title")))
+        self.news2.setText(_translate(
+            "MagicMirror", iran_news[1].get("title")))
+        self.news3.setText(_translate(
+            "MagicMirror", iran_news[2].get("title")))
+        self.news4.setText(_translate(
+            "MagicMirror", iran_news[3].get("title")))
 
     def updateTimezone(self):
         _translate = QtCore.QCoreApplication.translate
@@ -150,11 +163,16 @@ class Ui_MagicMirror(object):
         self.time.setText(_translate("MagicMirror", time_str))
 
     def initDate(self):
-        _translate = QtCore.QCoreApplication.translate
         now = datetime.now()
-        self.year.setText(_translate("MagicMirror", str(now.year)))
-        self.month.setText(_translate("MagicMirror", str(now.month)))
-        self.day.setText(_translate("MagicMirror", str(now.day)))
+        _translate = QtCore.QCoreApplication.translate
+        months = ["Farvardin", "Ordibehesht", "Khordad", "Tir", "Mordad",
+                  "Shahrivar", "Mehr", "Aban", "Azar", "Dey", "Bahman", "Esfand"]
+        jalili_date = jdatetime.date.fromgregorian(
+            day=now.day, month=now.month, year=now.year)
+        self.year.setText(_translate("MagicMirror", str(jalili_date.year)))
+        self.month.setText(_translate(
+            "MagicMirror", months[jalili_date.month-1]))
+        self.day.setText(_translate("MagicMirror", str(jalili_date.day)))
 
     def initWeather(self):
         _translate = QtCore.QCoreApplication.translate
@@ -163,8 +181,9 @@ class Ui_MagicMirror(object):
             f'https://www.google.com/search?q={city}&oq={city}&aqs=chrome.0.35i39l2j0l4j46j69i60.6128j1j7&sourceid=chrome&ie=UTF-8', headers=headers)
         soup = BeautifulSoup(res.text, 'html.parser')
         info = soup.select('#wob_dc')[0].getText().strip()
-        self.weather.setText(_translate("MagicMirror", "Tehran weather is \"" + info + "\" today"))
-        
+        self.weather.setText(_translate(
+            "MagicMirror", "Tehran weather is \"" + info + "\" today"))
+
     def updateTemperature(self):
         _translate = QtCore.QCoreApplication.translate
         self.time_2.setText(_translate("MagicMirror", "22°"))
