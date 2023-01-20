@@ -3,6 +3,8 @@ from datetime import datetime
 import pytz
 import sys
 import pics
+import jdatetime
+
 
 
 class Ui_MagicMirror(object):
@@ -77,19 +79,19 @@ class Ui_MagicMirror(object):
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.year = QtWidgets.QLabel(self.verticalLayoutWidget_2)
         self.year.setStyleSheet("color: rgb(162, 255, 237);\n"
-                                "font: 24pt \"Forte\";")
+                                "font: 30pt \"Forte\";")
         self.year.setAlignment(QtCore.Qt.AlignCenter)
         self.year.setObjectName("year")
         self.horizontalLayout.addWidget(self.year)
         self.month = QtWidgets.QLabel(self.verticalLayoutWidget_2)
         self.month.setStyleSheet("color: rgb(162, 255, 237);\n"
-                                 "font: 24pt \"Forte\";")
+                                 "font: 30pt \"Forte\";")
         self.month.setAlignment(QtCore.Qt.AlignCenter)
         self.month.setObjectName("month")
         self.horizontalLayout.addWidget(self.month)
         self.day = QtWidgets.QLabel(self.verticalLayoutWidget_2)
         self.day.setStyleSheet("color: rgb(162, 255, 237);\n"
-                               "font: 24pt \"Forte\";")
+                               "font: 30pt \"Forte\";")
         self.day.setAlignment(QtCore.Qt.AlignCenter)
         self.day.setObjectName("day")
         self.horizontalLayout.addWidget(self.day)
@@ -131,9 +133,7 @@ class Ui_MagicMirror(object):
         self.news4.setText(_translate(
             "MagicMirror", "news 1 is gonna be here and it is int"))
         self.updateTimezone()
-        self.year.setText(_translate("MagicMirror", "2000"))
-        self.month.setText(_translate("MagicMirror", "Month"))
-        self.day.setText(_translate("MagicMirror", "00"))
+        self.initDate()
         self.time_2.setText(_translate("MagicMirror", "22°"))
         self.weather.setText(_translate(
             "MagicMirror", "Tehran weather is here"))
@@ -142,7 +142,16 @@ class Ui_MagicMirror(object):
         _translate = QtCore.QCoreApplication.translate
         now = datetime.now()
         datetime_str = str(now.hour) + " : " + str(now.minute) + " : " + str(now.second)
-        self.time.setText(_translate("MagicMirror", datetime_str))        
+        self.time.setText(_translate("MagicMirror", datetime_str))   
+
+    def initDate(self):
+        now = datetime.now()
+        _translate = QtCore.QCoreApplication.translate
+        months = ["Farvardin" , "Ordibehesht" , "Khordad" , "Tir" , "Mordad" , "Shahrivar" , "Mehr" , "Aban" , "Azar" , "Dey" , "Bahman" , "Esfand"]
+        jalili_date =  jdatetime.date.fromgregorian(day= now.day,month= now.month ,year=now.year)
+        self.year.setText(_translate("MagicMirror", str(jalili_date.year)))
+        self.month.setText(_translate("MagicMirror", months[jalili_date.month-1]))
+        self.day.setText(_translate("MagicMirror", str(jalili_date.day)))     
 
 
 if __name__ == "__main__":
