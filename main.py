@@ -138,9 +138,9 @@ class Ui_MagicMirror(object):
         self.news4.setText(_translate(
             "MagicMirror", "news 1 is gonna be here and it is int"))
         self.updateTimezone()
-        self.updateDate()
+        self.initDate()
+        self.initWeather()
         self.updateTemperature()
-        self.updateWeather()
 
     def updateTimezone(self):
         _translate = QtCore.QCoreApplication.translate
@@ -149,14 +149,14 @@ class Ui_MagicMirror(object):
             str(now.minute) + " : " + str(now.second)
         self.time.setText(_translate("MagicMirror", time_str))
 
-    def updateDate(self):
+    def initDate(self):
         _translate = QtCore.QCoreApplication.translate
         now = datetime.now()
         self.year.setText(_translate("MagicMirror", str(now.year)))
         self.month.setText(_translate("MagicMirror", str(now.month)))
         self.day.setText(_translate("MagicMirror", str(now.day)))
 
-    def updateWeather(self):
+    def initWeather(self):
         _translate = QtCore.QCoreApplication.translate
         city = "Tehran+weather"
         res = requests.get(
@@ -164,6 +164,7 @@ class Ui_MagicMirror(object):
         soup = BeautifulSoup(res.text, 'html.parser')
         info = soup.select('#wob_dc')[0].getText().strip()
         self.weather.setText(_translate("MagicMirror", "Tehran weather is \"" + info + "\" today"))
+        
     def updateTemperature(self):
         _translate = QtCore.QCoreApplication.translate
         self.time_2.setText(_translate("MagicMirror", "22°"))
