@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'untitled.ui'
+# Form implementation generated from reading ui file 'mio.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.7
 #
@@ -9,21 +9,22 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+import pics
 
 class Ui_MagicMirror(object):
     def setupUi(self, MagicMirror):
         MagicMirror.setObjectName("MagicMirror")
-        MagicMirror.setGeometry(60 , 60 , 1800 , 950)
+        MagicMirror.resize(1800, 950)
         self.centralwidget = QtWidgets.QWidget(MagicMirror)
         self.centralwidget.setObjectName("centralwidget")
         self.frame = QtWidgets.QLabel(self.centralwidget)
         self.frame.setGeometry(QtCore.QRect(20, 0, 1770, 920))
-        self.frame.setStyleSheet("border-image: url(:/);")
+        self.frame.setStyleSheet("border-image: url(:/newPrefix/resources/frame.png);")
         self.frame.setText("")
         self.frame.setObjectName("frame")
         self.background = QtWidgets.QLabel(self.centralwidget)
         self.background.setGeometry(QtCore.QRect(60, 40, 1681, 841))
-        self.background.setStyleSheet("border-image: url(:/resources/background.jpg));")
+        self.background.setStyleSheet("border-image: url(:/newPrefix/resources/background.jpg);")
         self.background.setText("")
         self.background.setObjectName("background")
         self.verticalLayoutWidget = QtWidgets.QWidget(self.centralwidget)
@@ -134,7 +135,6 @@ class Ui_MagicMirror(object):
         self.day.setText(_translate("MagicMirror", "00"))
         self.time_2.setText(_translate("MagicMirror", "22*"))
         self.weather.setText(_translate("MagicMirror", "Tehran weather is here"))
-
 
 
 if __name__ == "__main__":
