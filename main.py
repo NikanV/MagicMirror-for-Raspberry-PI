@@ -1,8 +1,15 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from datetime import datetime
+import pyttsx3
+from bs4 import BeautifulSoup
+import requests
+import cv2
 import pytz
 import sys
 import pics
+
+headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'}
 
 
 class Ui_MagicMirror(object):
@@ -131,18 +138,35 @@ class Ui_MagicMirror(object):
         self.news4.setText(_translate(
             "MagicMirror", "news 1 is gonna be here and it is int"))
         self.updateTimezone()
-        self.year.setText(_translate("MagicMirror", "2000"))
-        self.month.setText(_translate("MagicMirror", "Month"))
-        self.day.setText(_translate("MagicMirror", "00"))
-        self.time_2.setText(_translate("MagicMirror", "22°"))
-        self.weather.setText(_translate(
-            "MagicMirror", "Tehran weather is here"))
+        self.updateDate()
+        self.updateTemperature()
+        self.updateWeather()
 
     def updateTimezone(self):
         _translate = QtCore.QCoreApplication.translate
         now = datetime.now()
-        datetime_str = str(now.hour) + " : " + str(now.minute) + " : " + str(now.second)
-        self.time.setText(_translate("MagicMirror", datetime_str))        
+        time_str = str(now.hour) + " : " + \
+            str(now.minute) + " : " + str(now.second)
+        self.time.setText(_translate("MagicMirror", time_str))
+
+    def updateDate(self):
+        _translate = QtCore.QCoreApplication.translate
+        now = datetime.now()
+        self.year.setText(_translate("MagicMirror", str(now.year)))
+        self.month.setText(_translate("MagicMirror", str(now.month)))
+        self.day.setText(_translate("MagicMirror", str(now.day)))
+
+    def updateWeather(self):
+        _translate = QtCore.QCoreApplication.translate
+        city = "Tehran+weather"
+        res = requests.get(
+            f'https://www.google.com/search?q={city}&oq={city}&aqs=chrome.0.35i39l2j0l4j46j69i60.6128j1j7&sourceid=chrome&ie=UTF-8', headers=headers)
+        soup = BeautifulSoup(res.text, 'html.parser')
+        info = soup.select('#wob_dc')[0].getText().strip()
+        self.weather.setText(_translate("MagicMirror", "Tehran weather is \"" + info + "\" today"))
+    def updateTemperature(self):
+        _translate = QtCore.QCoreApplication.translate
+        self.time_2.setText(_translate("MagicMirror", "22°"))
 
 
 if __name__ == "__main__":
