@@ -1,5 +1,8 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
+from datetime import datetime
+import pytz
 import sys
+import pics
 
 
 class Ui_MagicMirror(object):
@@ -10,13 +13,14 @@ class Ui_MagicMirror(object):
         self.centralwidget.setObjectName("centralwidget")
         self.frame = QtWidgets.QLabel(self.centralwidget)
         self.frame.setGeometry(QtCore.QRect(20, 0, 1770, 920))
-        self.frame.setStyleSheet("border-image: url(:/);")
+        self.frame.setStyleSheet(
+            "border-image: url(:/newPrefix/resources/frame.png);")
         self.frame.setText("")
         self.frame.setObjectName("frame")
         self.background = QtWidgets.QLabel(self.centralwidget)
         self.background.setGeometry(QtCore.QRect(60, 40, 1681, 841))
         self.background.setStyleSheet(
-            "border-image: url(:/resources/background.jpg));")
+            "border-image: url(:/newPrefix/resources/background.jpg);")
         self.background.setText("")
         self.background.setObjectName("background")
         self.verticalLayoutWidget = QtWidgets.QWidget(self.centralwidget)
@@ -111,7 +115,6 @@ class Ui_MagicMirror(object):
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1800, 26))
         self.menubar.setObjectName("menubar")
         MagicMirror.setMenuBar(self.menubar)
-
         self.retranslateUi(MagicMirror)
         QtCore.QMetaObject.connectSlotsByName(MagicMirror)
 
@@ -127,13 +130,19 @@ class Ui_MagicMirror(object):
             "MagicMirror", "news 1 is gonna be here and it is int"))
         self.news4.setText(_translate(
             "MagicMirror", "news 1 is gonna be here and it is int"))
-        self.time.setText(_translate("MagicMirror", "22:22"))
+        self.updateTimezone()
         self.year.setText(_translate("MagicMirror", "2000"))
         self.month.setText(_translate("MagicMirror", "Month"))
         self.day.setText(_translate("MagicMirror", "00"))
-        self.time_2.setText(_translate("MagicMirror", "22*"))
+        self.time_2.setText(_translate("MagicMirror", "22°"))
         self.weather.setText(_translate(
             "MagicMirror", "Tehran weather is here"))
+
+    def updateTimezone(self):
+        _translate = QtCore.QCoreApplication.translate
+        now = datetime.now()
+        datetime_str = str(now.hour) + " : " + str(now.minute) + " : " + str(now.second)
+        self.time.setText(_translate("MagicMirror", datetime_str))        
 
 
 if __name__ == "__main__":
