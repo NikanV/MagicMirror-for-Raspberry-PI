@@ -14,7 +14,7 @@ import pics
 class Ui_MagicMirror(object):
     def setupUi(self, MagicMirror):
         MagicMirror.setObjectName("MagicMirror")
-        MagicMirror.resize(1800, 950)
+        MagicMirror.setGeometry(60 , 60 , 1800, 950)
         self.centralwidget = QtWidgets.QWidget(MagicMirror)
         self.centralwidget.setObjectName("centralwidget")
         self.frame = QtWidgets.QLabel(self.centralwidget)
