@@ -17,16 +17,15 @@ from PyQt5.QtMultimediaWidgets import *
 import os
 import time
 import firstWin
-import cameraWin
 
 app = QtWidgets.QApplication(sys.argv)
+
 
 def changeWindow(MagicMirror):
     ui = firstWin.Ui_MagicMirror()
     ui.setupUi(MagicMirror)
     MagicMirror.show()
     sys.exit(app.exec_())
-
 
 
 if __name__ == "__main__":
