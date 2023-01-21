@@ -38,7 +38,11 @@ class Ui_MagicMirror(QMainWindow):
         self.background = QtWidgets.QLabel(self.centralWidget)
         self.background.setGeometry(QtCore.QRect(60, 40, 1681, 841))
         self.background.setStyleSheet(
-            "border-image: url(:/newPrefix/background.jpg);")
+            "border-image: url(:/newPrefix/background.jpg);"
+            "border-top-left-radius :50px;"
+            "border-top-right-radius : 50px; "
+            "border-bottom-left-radius : 50px; "
+            "border-bottom-right-radius : 50px")
         self.background.setText("")
         self.background.setObjectName("background")
 
@@ -88,7 +92,7 @@ class Ui_MagicMirror(QMainWindow):
 
         # Testing button for user recognition attributes
         self.pushButton = QtWidgets.QPushButton(self.centralWidget)
-        self.pushButton.setGeometry(QtCore.QRect(80, 60, 211, 81))
+        self.pushButton.setGeometry(QtCore.QRect(160, 0, 150, 41))
         self.pushButton.setObjectName("pushButton")
         self.pushButton.clicked.connect(
             lambda: self.clicked(self.weatherIcon.isVisible()))
@@ -246,7 +250,7 @@ class Ui_MagicMirror(QMainWindow):
         self.available_cameras = QCameraInfo.availableCameras()
         self.viewfinder = QCameraViewfinder(self.centralWidget)
         self.viewfinder.show()
-        self.viewfinder.setGeometry(QtCore.QRect(60, 40, 1681, 841))
+        self.viewfinder.setGeometry(QtCore.QRect(155, 40, 1681, 841))
         self.viewfinder.lower()
         self.frame.raise_()
         self.pushButton.raise_()
