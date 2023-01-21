@@ -200,7 +200,7 @@ class Ui_MagicMirror(QMainWindow):
         _translate = QtCore.QCoreApplication.translate
         MagicMirror.setWindowTitle(_translate("MagicMirror", "MainWindow"))
         self.news.setText(_translate("MagicMirror", "news"))
-        # self.initNews(_translate)
+        self.initNews(_translate)
         self.initDate(_translate)
         self.initWeather(_translate)
         self.updateTemperature(_translate)
@@ -208,14 +208,18 @@ class Ui_MagicMirror(QMainWindow):
 
     def initNews(self, _translate):
         iran_news = GNews().get_news_by_topic("Technology")
-        self.news1.setText(_translate(
-            "MagicMirror", iran_news[0].get("title")))
-        self.news2.setText(_translate(
-            "MagicMirror", iran_news[1].get("title")))
-        self.news3.setText(_translate(
-            "MagicMirror", iran_news[2].get("title")))
-        self.news4.setText(_translate(
-            "MagicMirror", iran_news[3].get("title")))
+        if len(iran_news) >= 1:
+            self.news1.setText(_translate(
+                "MagicMirror", iran_news[0].get("title")))
+        if len(iran_news) >= 2:
+            self.news2.setText(_translate(
+                "MagicMirror", iran_news[1].get("title")))
+        if len(iran_news) >= 3:
+            self.news3.setText(_translate(
+                "MagicMirror", iran_news[2].get("title")))
+        if len(iran_news) >= 4:
+            self.news4.setText(_translate(
+                "MagicMirror", iran_news[3].get("title")))
 
     def updateTimezone(self, _translate):
         now = datetime.now()
