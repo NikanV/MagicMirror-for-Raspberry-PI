@@ -2,8 +2,8 @@ import poplib
 from email import parser
 
 pop3server = 'mail.sharif.edu'
-username = 'username@sharif.edu'
-password = 'password'
+username = 'ehsan.rahmanimiyab@sharif.edu'
+password = '10878296Ehsan'
 pop3server = poplib.POP3_SSL(pop3server)
 pop3server.user(username)
 pop3server.pass_(password)

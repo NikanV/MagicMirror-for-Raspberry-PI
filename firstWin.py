@@ -196,7 +196,7 @@ class Ui_MagicMirror(QMainWindow):
         _translate = QtCore.QCoreApplication.translate
         MagicMirror.setWindowTitle(_translate("MagicMirror", "MainWindow"))
         self.news.setText(_translate("MagicMirror", "news"))
-        self.initNews(_translate)
+        # self.initNews(_translate)
         self.initDate(_translate)
         self.initWeather(_translate)
         self.updateTemperature(_translate)
