@@ -1,24 +1,23 @@
-from multiprocessing.connection import wait
-from turtle import Turtle, update
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtGui import QPixmap
+from PyQt5.QtCore import Qt
 from datetime import datetime
-import pyttsx3
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import *
 from bs4 import BeautifulSoup
-from gnews import GNews
 import requests
 import cv2
-import pytz
-import sys
-import pics
 import jdatetime
 from PyQt5.QtWidgets import *
 from PyQt5.QtMultimedia import *
 from PyQt5.QtMultimediaWidgets import *
 import poplib
 from email import parser
-import os
+import numpy as np
+from threading import *
 import time
-import pics2
+import pics, pics2
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'}
@@ -155,6 +154,12 @@ class Ui_MagicMirror(QMainWindow):
         self.weather.setObjectName("weather")
         self.weather.setWordWrap(True)
 
+        # Image attributes
+        self.image = QtWidgets.QLabel(self.centralWidget)
+        self.image.setGeometry(QtCore.QRect(660, 40, 600, 841))
+        # self.image.setAlignment(QtCore.Qt.AlignCenter)
+        self.image.setObjectName("image")
+
         # Email background attributes
         self.emailBack = QtWidgets.QLabel(self.centralWidget)
         self.emailBack.setGeometry(QtCore.QRect(60, 40, 600, 841))
@@ -252,6 +257,7 @@ class Ui_MagicMirror(QMainWindow):
         self.dateIcon.raise_()
         self.temperatureIcon.raise_()
         self.weatherIcon.raise_()
+        self.image.raise_()
 
         # Initiating the widgets' values
         MagicMirror.setCentralWidget(self.centralWidget)
@@ -263,15 +269,38 @@ class Ui_MagicMirror(QMainWindow):
         MagicMirror.setWindowTitle(_translate("MagicMirror", "MainWindow"))
         self.news.setText(_translate("MagicMirror", "news"))
 
-        # self.initNews(_translate)
+        self.initNews(_translate)
         self.initDate(_translate)
         self.initWeather(_translate)
         self.updateTemperature(_translate)
         self.updateTimezone(_translate)
         self.initEmails(_translate)
 
+        self.timeZoneTimer = QTimer()
+        self.timeZoneTimer.setInterval(1000)
+        self.timeZoneTimer.timeout.connect(self.updateTimezoneAndTemperature)
+        self.timeZoneTimer.start()
+        self.cameraTimer = QTimer()
+        self.cameraTimer.setInterval(10)
+        self.cameraTimer.timeout.connect(self.initCamera)
+
+    def updateTimezoneAndTemperature(self):
+        _translate = QtCore.QCoreApplication.translate
+        self.updateTimezone(_translate)
+        self.updateTemperature(_translate)
+
     def initNews(self, _translate):
-        iran_news = GNews().get_news_by_topic("Technology")
+        query_params = {
+            "source": "bbc-news",
+            "sortBy": "top",
+            "apiKey": "4dbc17e007ab436fb66416009dfb59a8"
+        }
+        main_url = " https://newsapi.org/v1/articles"
+
+        res = requests.get(main_url, params=query_params)
+        open_bbc_page = res.json()
+        iran_news = open_bbc_page["articles"]
+
         if len(iran_news) >= 1:
             self.news1.setText(_translate(
                 "MagicMirror", iran_news[0].get("title")))
@@ -303,9 +332,8 @@ class Ui_MagicMirror(QMainWindow):
         self.day.setText(_translate("MagicMirror", str(jalili_date.day)))
 
     def initWeather(self, _translate):
-        city = "Tehran+weather"
         res = requests.get(
-            f'https://www.google.com/search?q={city}&oq={city}&aqs=chrome.0.35i39l2j0l4j46j69i60.6128j1j7&sourceid=chrome&ie=UTF-8', headers=headers)
+            'https://www.google.com/search?q=Tehran+weather&oq=Tehran+weather&aqs=chrome.0.35i39l2j0l4j46j69i60.6128j1j7&sourceid=chrome&ie=UTF-8', headers=headers)
         soup = BeautifulSoup(res.text, 'html.parser')
         info = soup.select('#wob_dc')[0].getText().strip()
         self.weather.setText(_translate(
@@ -315,23 +343,39 @@ class Ui_MagicMirror(QMainWindow):
         self.temperature.setText(_translate("MagicMirror", "22°"))
 
     def initCamera(self):
-        self.available_cameras = QCameraInfo.availableCameras()
-        self.viewfinder = QCameraViewfinder(self.centralWidget)
-        self.viewfinder.show()
-        self.viewfinder.setGeometry(QtCore.QRect(155, 40, 1681, 841))
-        self.viewfinder.lower()
-        self.frame.raise_()
-        self.pushButton.raise_()
-        self.selectCamera(0)
+        url = "http://192.168.0.155:8080/photo.jpg"
+        img_response = requests.get(url)
+        img_array = np.array(bytearray(img_response.content), dtype=np.uint8)
+        cv_image = cv2.imdecode(img_array, -1)
+        rgb_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2RGB)
+        h, w, ch = rgb_image.shape
+        bytes_per_line = ch * w
+        convert_to_Qt_format = QtGui.QImage(
+            rgb_image.data, w, h, bytes_per_line, QtGui.QImage.Format_RGB888)
+        p = convert_to_Qt_format.scaled(1800, 950, Qt.KeepAspectRatio)
+        qt_image = QPixmap.fromImage(p)
+        self.image.setPixmap(qt_image)
 
-    def stopCamera(self):
-        self.camera.stop()
-        self.viewfinder.close()
+    def initEmails(self, _translate):
+        pop3server = 'mail.sharif.edu'
+        pop3server = poplib.POP3_SSL(pop3server)
+        pop3server.user('ehsan.rahmanimiyab@sharif.edu')
+        pop3server.pass_('10878296Ehsan')
+        messages = [pop3server.retr(i) for i in range(
+            1, len(pop3server.list()[1]) + 1)]
+        messages = ['\n'.join(map(bytes.decode, msg[1])) for msg in messages]
+        messages = [parser.Parser().parsestr(msg) for msg in messages]
+        self.emailTitle.setText(_translate("MagicMirror", "Emails: (Nima)"))
+        self.email1.setText(_translate(
+            "MagicMirror", messages[0]["subject"] + " - " + messages[0]["from"]))
+        self.email2.setText(_translate(
+            "MagicMirror", messages[1]["subject"] + " - " + messages[1]["from"]))
+        self.email3.setText(_translate(
+            "MagicMirror", messages[2]["subject"] + " - " + messages[2]["from"]))
+        self.email4.setText(_translate(
+            "MagicMirror", messages[3]["subject"] + " - " + messages[3]["from"]))
+        pop3server.quit()
 
-    def selectCamera(self, i):
-        self.camera = QCamera(self.available_cameras[i])
-        self.camera.setViewfinder(self.viewfinder)
-        self.camera.start()
 
     def clicked(self, condition):
         self.background.setVisible(not condition)
@@ -341,6 +385,7 @@ class Ui_MagicMirror(QMainWindow):
         self.temperatureIcon.setVisible(not condition)
         self.dateIcon.setVisible(not condition)
         self.weather.setVisible(not condition)
+        self.image.setVisible(condition)
         self.emailBack.setVisible(condition)
         self.verticalLayoutWidget3.setVisible(condition)
         if (condition):
@@ -352,7 +397,7 @@ class Ui_MagicMirror(QMainWindow):
             self.time.setGeometry(QtCore.QRect(470, 880, 341, 81))
             self.time.setStyleSheet("color: rgb(113, 51, 157);\n"
                                     "font: 30pt \"Forte\";")
-           # self.initCamera()
+            # self.cameraTimer.start()
         else:
             self.horizontalLayoutWidget.setGeometry(
                 QtCore.QRect(130, 250, 589, 182))
@@ -362,22 +407,4 @@ class Ui_MagicMirror(QMainWindow):
             self.time.setGeometry(QtCore.QRect(150, 160, 589, 135))
             self.time.setStyleSheet("color: rgb(113, 51, 157);\n"
                                     "font: 65pt \"Forte\";")
-            # self.stopCamera()
-    def initEmails(self, _translate):
-        pop3server = 'mail.sharif.edu'
-        pop3server = poplib.POP3_SSL(pop3server)
-        pop3server.user('ehsan.rahmanimiyab@sharif.edu')
-        pop3server.pass_('10878296Ehsan')
-        messages = [pop3server.retr(i) for i in range(1, len(pop3server.list()[1]) + 1)]
-        messages = ['\n'.join(map(bytes.decode, msg[1])) for msg in messages]
-        messages = [parser.Parser().parsestr(msg) for msg in messages]
-        self.emailTitle.setText(_translate("MagicMirror", "Emails: (Nima)"))
-        self.email1.setText(_translate(
-            "MagicMirror", messages[0]["subject"] + " - " + messages[0]["from"]))
-        self.email2.setText(_translate(
-            "MagicMirror", messages[1]["subject"] + " - " + messages[1]["from"]))
-        self.email3.setText(_translate(
-            "MagicMirror", messages[2]["subject"] + " - " + messages[2]["from"]))
-        self.email4.setText(_translate(
-            "MagicMirror", "well well this is strange but khobz means nan"))
-        pop3server.quit()
+            # self.cameraTimer.stop()

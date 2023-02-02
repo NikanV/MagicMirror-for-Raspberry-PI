@@ -1,21 +1,8 @@
-from multiprocessing.connection import wait
-from turtle import update
-from PyQt5 import QtCore, QtGui, QtWidgets
-from datetime import datetime
-import pyttsx3
-from bs4 import BeautifulSoup
-from gnews import GNews
-import requests
-import cv2
-import pytz
+from PyQt5 import QtWidgets
 import sys
-import pics
-import jdatetime
 from PyQt5.QtWidgets import *
 from PyQt5.QtMultimedia import *
 from PyQt5.QtMultimediaWidgets import *
-import os
-import time
 import firstWin
 
 
