@@ -18,6 +18,7 @@ import os
 import time
 import firstWin
 
+
 app = QtWidgets.QApplication(sys.argv)
 
 

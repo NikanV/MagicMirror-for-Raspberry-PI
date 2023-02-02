@@ -1,5 +1,5 @@
 from multiprocessing.connection import wait
-from turtle import update
+from turtle import Turtle, update
 from PyQt5 import QtCore, QtGui, QtWidgets
 from datetime import datetime
 import pyttsx3
@@ -14,8 +14,11 @@ import jdatetime
 from PyQt5.QtWidgets import *
 from PyQt5.QtMultimedia import *
 from PyQt5.QtMultimediaWidgets import *
+import poplib
+from email import parser
 import os
 import time
+import pics2
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'}
@@ -38,7 +41,11 @@ class Ui_MagicMirror(QMainWindow):
         self.background = QtWidgets.QLabel(self.centralWidget)
         self.background.setGeometry(QtCore.QRect(60, 40, 1681, 841))
         self.background.setStyleSheet(
-            "border-image: url(:/newPrefix/background.jpg);")
+            "border-image: url(:/newPrefix/background.jpg);"
+            "border-top-left-radius :50px;"
+            "border-top-right-radius : 50px; "
+            "border-bottom-left-radius : 50px; "
+            "border-bottom-right-radius : 50px")
         self.background.setText("")
         self.background.setObjectName("background")
 
@@ -88,7 +95,7 @@ class Ui_MagicMirror(QMainWindow):
 
         # Testing button for user recognition attributes
         self.pushButton = QtWidgets.QPushButton(self.centralWidget)
-        self.pushButton.setGeometry(QtCore.QRect(80, 60, 211, 81))
+        self.pushButton.setGeometry(QtCore.QRect(160, 0, 150, 41))
         self.pushButton.setObjectName("pushButton")
         self.pushButton.clicked.connect(
             lambda: self.clicked(self.weatherIcon.isVisible()))
@@ -148,6 +155,65 @@ class Ui_MagicMirror(QMainWindow):
         self.weather.setObjectName("weather")
         self.weather.setWordWrap(True)
 
+        # Email background attributes
+        self.emailBack = QtWidgets.QLabel(self.centralWidget)
+        self.emailBack.setGeometry(QtCore.QRect(60, 40, 600, 841))
+        self.emailBack.setStyleSheet(
+            "border-image: url(:/newPrefix/emailBackground.jpg);"
+            "border-top-left-radius :50px;"
+            "border-top-right-radius : 5px; "
+            "border-bottom-left-radius : 50px; "
+            "border-bottom-right-radius : 5px")
+        self.emailBack.setText("")
+        self.emailBack.setObjectName("emailBack")
+        self.emailBack.setVisible(False)
+
+        # The vertical layout for email attributes
+        self.verticalLayoutWidget3 = QtWidgets.QWidget(self.centralWidget)
+        self.verticalLayoutWidget3.setGeometry(
+            QtCore.QRect(150, 140, 450, 601))
+        self.verticalLayoutWidget3.setObjectName("verticalLayoutWidget3")
+        self.verticalLayout3 = QtWidgets.QVBoxLayout(
+            self.verticalLayoutWidget3)
+        self.verticalLayout3.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout3.setObjectName("verticalLayout")
+
+        # Email title and descriptions attributes
+        self.emailTitle = QtWidgets.QLabel(self.verticalLayoutWidget3)
+        self.emailTitle.setStyleSheet("color: rgb(134, 15, 4);\n"
+                                      "font: 30pt \"Forte\";")
+        self.emailTitle.setAlignment(QtCore.Qt.AlignCenter)
+        self.emailTitle.setObjectName("emailTitle")
+        self.verticalLayout3.addWidget(self.emailTitle)
+        self.email1 = QtWidgets.QLabel(self.verticalLayoutWidget3)
+        self.email1.setStyleSheet("color: rgb(3, 37, 67);\n"
+                                  "font: 20pt \"Forte\";")
+        self.email1.setAlignment(QtCore.Qt.AlignCenter)
+        self.email1.setObjectName("email1")
+        self.email1.setWordWrap(True)
+        self.verticalLayout3.addWidget(self.email1)
+        self.email2 = QtWidgets.QLabel(self.verticalLayoutWidget3)
+        self.email2.setStyleSheet("color: rgb(3, 37, 67);\n"
+                                  "font: 20pt \"Forte\";")
+        self.email2.setAlignment(QtCore.Qt.AlignCenter)
+        self.email2.setObjectName("email2")
+        self.email2.setWordWrap(True)
+        self.verticalLayout3.addWidget(self.email2)
+        self.email3 = QtWidgets.QLabel(self.verticalLayoutWidget3)
+        self.email3.setStyleSheet("color: rgb(3, 37, 67);\n"
+                                  "font: 20pt \"Forte\";")
+        self.email3.setAlignment(QtCore.Qt.AlignCenter)
+        self.email3.setObjectName("email3")
+        self.email3.setWordWrap(True)
+        self.verticalLayout3.addWidget(self.email3)
+        self.email4 = QtWidgets.QLabel(self.verticalLayoutWidget3)
+        self.email4.setStyleSheet("color: rgb(3, 37, 67);\n"
+                                  "font: 20pt \"Forte\";")
+        self.email4.setAlignment(QtCore.Qt.AlignCenter)
+        self.email4.setObjectName("email4")
+        self.email4.setWordWrap(True)
+        self.verticalLayout3.addWidget(self.email4)
+
         # All of the icons attributes
         self.timeIcon = QtWidgets.QLabel(self.centralWidget)
         self.timeIcon.setGeometry(QtCore.QRect(700, 180, 91, 91))
@@ -196,11 +262,13 @@ class Ui_MagicMirror(QMainWindow):
         _translate = QtCore.QCoreApplication.translate
         MagicMirror.setWindowTitle(_translate("MagicMirror", "MainWindow"))
         self.news.setText(_translate("MagicMirror", "news"))
+
         # self.initNews(_translate)
         self.initDate(_translate)
         self.initWeather(_translate)
         self.updateTemperature(_translate)
         self.updateTimezone(_translate)
+        self.initEmails(_translate)
 
     def initNews(self, _translate):
         iran_news = GNews().get_news_by_topic("Technology")
@@ -250,7 +318,7 @@ class Ui_MagicMirror(QMainWindow):
         self.available_cameras = QCameraInfo.availableCameras()
         self.viewfinder = QCameraViewfinder(self.centralWidget)
         self.viewfinder.show()
-        self.viewfinder.setGeometry(QtCore.QRect(60, 40, 1681, 841))
+        self.viewfinder.setGeometry(QtCore.QRect(155, 40, 1681, 841))
         self.viewfinder.lower()
         self.frame.raise_()
         self.pushButton.raise_()
@@ -273,6 +341,8 @@ class Ui_MagicMirror(QMainWindow):
         self.temperatureIcon.setVisible(not condition)
         self.dateIcon.setVisible(not condition)
         self.weather.setVisible(not condition)
+        self.emailBack.setVisible(condition)
+        self.verticalLayoutWidget3.setVisible(condition)
         if (condition):
             self.horizontalLayoutWidget.setGeometry(
                 QtCore.QRect(780, 890, 371, 61))
@@ -282,7 +352,7 @@ class Ui_MagicMirror(QMainWindow):
             self.time.setGeometry(QtCore.QRect(470, 880, 341, 81))
             self.time.setStyleSheet("color: rgb(113, 51, 157);\n"
                                     "font: 30pt \"Forte\";")
-            self.initCamera()
+           # self.initCamera()
         else:
             self.horizontalLayoutWidget.setGeometry(
                 QtCore.QRect(130, 250, 589, 182))
@@ -292,4 +362,22 @@ class Ui_MagicMirror(QMainWindow):
             self.time.setGeometry(QtCore.QRect(150, 160, 589, 135))
             self.time.setStyleSheet("color: rgb(113, 51, 157);\n"
                                     "font: 65pt \"Forte\";")
-            self.stopCamera()
+            # self.stopCamera()
+    def initEmails(self, _translate):
+        pop3server = 'mail.sharif.edu'
+        pop3server = poplib.POP3_SSL(pop3server)
+        pop3server.user('ehsan.rahmanimiyab@sharif.edu')
+        pop3server.pass_('10878296Ehsan')
+        messages = [pop3server.retr(i) for i in range(1, len(pop3server.list()[1]) + 1)]
+        messages = ['\n'.join(map(bytes.decode, msg[1])) for msg in messages]
+        messages = [parser.Parser().parsestr(msg) for msg in messages]
+        self.emailTitle.setText(_translate("MagicMirror", "Emails: (Nima)"))
+        self.email1.setText(_translate(
+            "MagicMirror", messages[0]["subject"] + " - " + messages[0]["from"]))
+        self.email2.setText(_translate(
+            "MagicMirror", messages[1]["subject"] + " - " + messages[1]["from"]))
+        self.email3.setText(_translate(
+            "MagicMirror", messages[2]["subject"] + " - " + messages[2]["from"]))
+        self.email4.setText(_translate(
+            "MagicMirror", "well well this is strange but khobz means nan"))
+        pop3server.quit()
