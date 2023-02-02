@@ -270,9 +270,9 @@ class Ui_MagicMirror(QMainWindow):
         ####
 
 
-        # self.initNews(_translate)
+        #self.initNews(_translate)
         self.initDate(_translate)
-        self.initWeather(_translate)
+        #self.initWeather(_translate)
         self.updateTemperature(_translate)
         self.updateTimezone(_translate)
 
@@ -358,7 +358,7 @@ class Ui_MagicMirror(QMainWindow):
             self.time.setGeometry(QtCore.QRect(470, 880, 341, 81))
             self.time.setStyleSheet("color: rgb(113, 51, 157);\n"
                                     "font: 30pt \"Forte\";")
-            self.initCamera()
+           # self.initCamera()
         else:
             self.horizontalLayoutWidget.setGeometry(
                 QtCore.QRect(130, 250, 589, 182))
@@ -368,4 +368,4 @@ class Ui_MagicMirror(QMainWindow):
             self.time.setGeometry(QtCore.QRect(150, 160, 589, 135))
             self.time.setStyleSheet("color: rgb(113, 51, 157);\n"
                                     "font: 65pt \"Forte\";")
-            self.stopCamera()
+            #self.stopCamera()
